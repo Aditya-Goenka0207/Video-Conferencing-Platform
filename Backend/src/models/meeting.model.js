@@ -6,6 +6,7 @@ const meetingSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      index: true, //added index for faster queries when searching meetings by user
     },
     meetingCode: {
       type: String,
@@ -25,7 +26,8 @@ const meetingSchema = new Schema(
 );
 
 //prevent duplicate meeting history for same user
-// meetingSchema.index({ user_id: 1, meetingCode: 1 }, { unique: true });
+//compound index to prevent duplicate meeting entries
+meetingSchema.index({ user_id: 1, meetingCode: 1 }, { unique: true });
 
 const Meeting = mongoose.model("meeting", meetingSchema);
 

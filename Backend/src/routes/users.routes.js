@@ -9,10 +9,15 @@ import {
 const router = Router();
 
 // ================= AUTH ROUTES =================
+
+// login user
 router.route("/login").post(login);
+// register user
 router.route("/register").post(register);
 
 // ================= USER ACTIVITY =================
+
 router.route("/add_to_activity").post(addToHistory);
 router.route("/get_all_activity").get(getUserHistory);
+
 export default router;

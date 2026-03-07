@@ -1,0 +1,14 @@
+# dependencies
+**/node_modules/
+
+# environment
+**/.env
+**/.env.*
+
+# build
+**/build/
+**/dist/
+
+# system
+.DS_Store
+Thumbs.db

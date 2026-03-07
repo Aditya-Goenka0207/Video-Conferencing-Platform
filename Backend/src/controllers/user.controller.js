@@ -8,7 +8,7 @@ import { Meeting } from "../models/meeting.model.js";
 export const login = async (req, res) => {
   const { username, password } = req.body;
 
-  if (!username?.trim() || !password?.trim()) {
+  if (!username || !password || !username.trim() || !password.trim()) {
     return res
       .status(httpStatus.BAD_REQUEST)
       .json({ message: "Please provide all details" });
@@ -30,7 +30,8 @@ export const login = async (req, res) => {
         .status(httpStatus.UNAUTHORIZED)
         .json({ message: "Invalid credentials" });
     }
-    const token = crypto.randomBytes(20).toString("hex");
+
+    const token = crypto.randomBytes(32).toString("hex");
 
     user.token = token;
     await user.save();
@@ -47,14 +48,20 @@ export const login = async (req, res) => {
 export const register = async (req, res) => {
   const { name, username, password } = req.body;
 
-  if (!name?.trim() || !username?.trim() || !password?.trim()) {
+  if (
+    !name ||
+    !username ||
+    !password ||
+    !name.trim() ||
+    !username.trim() ||
+    !password.trim()
+  ) {
     return res
       .status(httpStatus.BAD_REQUEST)
       .json({ message: "Please provide all details" });
   }
 
   try {
-    // prevent duplicate usernames
     const existingUser = await User.findOne({ username: username.trim() });
 
     if (existingUser) {
@@ -105,7 +112,9 @@ export const getUserHistory = async (req, res) => {
         .json({ message: "Invalid token" });
     }
 
-    const meetings = await Meeting.find({ user_id: user.username }).lean();
+    const meetings = await Meeting.find({ user_id: user.username })
+      .sort({ createdAt: -1 }) // requires timestamps in schema
+      .lean();
 
     return res.status(httpStatus.OK).json(meetings);
   } catch (e) {
@@ -119,7 +128,7 @@ export const getUserHistory = async (req, res) => {
 export const addToHistory = async (req, res) => {
   const { token, meetingCode } = req.body;
 
-  if (!token || !meetingCode?.trim()) {
+  if (!token || !meetingCode || !meetingCode.trim()) {
     return res
       .status(httpStatus.BAD_REQUEST)
       .json({ message: "Token and meetingCode are required" });

@@ -27,6 +27,7 @@ const userSchema = new Schema(
     token: {
       type: String,
       index: true,
+      default: null,
     },
   },
   {
@@ -34,6 +35,8 @@ const userSchema = new Schema(
     timestamps: true,
   },
 );
+
+userSchema.index({ username: 1 }, { unique: true });
 
 const User = mongoose.model("user", userSchema);
 

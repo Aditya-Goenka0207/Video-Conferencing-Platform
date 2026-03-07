@@ -1,0 +1,84 @@
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import HomeIcon from "@mui/icons-material/Home";
+import { IconButton, Snackbar } from "@mui/material";
+
+export default function History() {
+  const { getHistoryOfUser } = useContext(AuthContext);
+  const [meetings, setMeetings] = useState([]);
+  const [error, setError] = useState("");
+  const [open, setOpen] = useState(false); // For snackbar
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const history = await getHistoryOfUser();
+        if (Array.isArray(history)) {
+          setMeetings(history);
+        } else {
+          setMeetings([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch meeting history", err);
+        setError(typeof err === "string" ? err : "Failed to fetch history");
+        setOpen(true);
+      }
+    };
+
+    fetchHistory();
+  }, [getHistoryOfUser]);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  return (
+    <div style={{ padding: "1rem" }}>
+      <IconButton
+        onClick={() => {
+          navigate("/home");
+        }}
+      >
+        <HomeIcon />
+      </IconButton>
+
+      {meetings.length > 0 ? (
+        meetings.map((e, i) => (
+          <Card key={i} variant="outlined" sx={{ mb: 1 }}>
+            <CardContent>
+              <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                Code: {e.meetingCode}
+              </Typography>
+
+              <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                Date: {formatDate(e.date)}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))
+      ) : (
+        <Typography sx={{ mt: 2 }} color="text.secondary">
+          No meeting history found
+        </Typography>
+      )}
+
+      {/* Snackbar for errors */}
+      <Snackbar
+        open={open}
+        autoHideDuration={4000}
+        onClose={() => setOpen(false)}
+        message={error}
+      />
+    </div>
+  );
+}
