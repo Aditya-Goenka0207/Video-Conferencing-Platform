@@ -15,7 +15,7 @@ export const login = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ username: username.trim() });
+  const user = await User.findOne({ username: username.trim() }).select("+password");
 
     if (!user) {
       return res
